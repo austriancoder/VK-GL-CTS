@@ -43,7 +43,6 @@
 #include "tcuPixelFormat.hpp"
 #include "tcuPlatform.hpp"
 #include "tcuRenderTarget.hpp"
-#include "vkPlatform.hpp"
 
 #include <EGL/egl.h>
 
@@ -93,52 +92,6 @@ namespace tcu
 namespace surfaceless
 {
 
-class VulkanLibrary : public vk::Library
-{
-public:
-    VulkanLibrary(const char *libraryPath)
-        : m_library(libraryPath != DE_NULL ? libraryPath : DEQP_VULKAN_LIBRARY_PATH)
-        , m_driver(m_library)
-    {
-    }
-
-    const vk::PlatformInterface &getPlatformInterface(void) const
-    {
-        return m_driver;
-    }
-    const tcu::FunctionLibrary &getFunctionLibrary(void) const
-    {
-        return m_library;
-    }
-
-private:
-    const tcu::DynamicFunctionLibrary m_library;
-    const vk::PlatformDriver m_driver;
-};
-
-// Copied from tcuX11Platform.cpp
-class VulkanPlatform : public vk::Platform
-{
-public:
-    vk::Library *createLibrary(const char *libraryPath) const
-    {
-        return new VulkanLibrary(libraryPath);
-    }
-
-    void describePlatform(std::ostream &dst) const
-    {
-        utsname sysInfo;
-
-        deMemset(&sysInfo, 0, sizeof(sysInfo));
-
-        if (uname(&sysInfo) != 0)
-            throw std::runtime_error("uname() failed");
-
-        dst << "OS: " << sysInfo.sysname << " " << sysInfo.release << " " << sysInfo.version << "\n";
-        dst << "CPU: " << sysInfo.machine << "\n";
-    }
-};
-
 bool isEGLExtensionSupported(const eglw::Library &egl, eglw::EGLDisplay, const std::string &extName)
 {
     const vector<string> exts = eglu::getClientExtensions(egl);
@@ -185,13 +138,6 @@ public:
     {
         return *this;
     }
-    const vk::Platform &getVulkanPlatform(void) const
-    {
-        return m_vkPlatform;
-    }
-
-private:
-    VulkanPlatform m_vkPlatform;
 };
 
 class ContextFactory : public glu::ContextFactory

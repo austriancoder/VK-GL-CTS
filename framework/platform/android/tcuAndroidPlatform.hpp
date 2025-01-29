@@ -27,7 +27,6 @@
 #include "tcuPlatform.hpp"
 #include "egluPlatform.hpp"
 #include "gluPlatform.hpp"
-#include "vkPlatform.hpp"
 #include "tcuAndroidWindow.hpp"
 #include "tcuAndroidNativeActivity.hpp"
 
@@ -36,7 +35,7 @@ namespace tcu
 namespace Android
 {
 
-class Platform : public tcu::Platform, private eglu::Platform, private glu::Platform, private vk::Platform
+class Platform : public tcu::Platform, private eglu::Platform, private glu::Platform
 {
 public:
     Platform(NativeActivity &activity);
@@ -52,10 +51,6 @@ public:
     {
         return static_cast<const eglu::Platform &>(*this);
     }
-    virtual const vk::Platform &getVulkanPlatform(void) const
-    {
-        return static_cast<const vk::Platform &>(*this);
-    }
     virtual void getMemoryLimits(tcu::PlatformMemoryLimits &limits) const;
 
     WindowRegistry &getWindowRegistry(void)
@@ -63,14 +58,7 @@ public:
         return m_windowRegistry;
     }
 
-    // Vulkan Platform API
-    vk::Library *createLibrary(const char *libraryPath) const;
-    void describePlatform(std::ostream &dst) const;
-    vk::wsi::Display *createWsiDisplay(vk::wsi::Type wsiType) const;
-    bool hasDisplay(vk::wsi::Type wsiType) const;
-
 private:
-    NativeActivity &m_activity;
     WindowRegistry m_windowRegistry;
     const size_t m_totalSystemMemory;
 };

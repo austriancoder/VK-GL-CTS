@@ -15,8 +15,6 @@ if (NOT DEFINED TCUTIL_PLATFORM_SRCS)
 			win32/tcuWin32Window.hpp
 			win32/tcuWin32EGLNativeDisplayFactory.hpp
 			win32/tcuWin32EGLNativeDisplayFactory.cpp
-			win32/tcuWin32VulkanPlatform.hpp
-			win32/tcuWin32VulkanPlatform.cpp
 			)
 
 	elseif ((DE_OS_IS_UNIX OR DE_OS_IS_OSX) AND (DEQP_USE_X11 OR DEQP_USE_WAYLAND OR DEQP_USE_HEADLESS))
@@ -28,8 +26,6 @@ if (NOT DEFINED TCUTIL_PLATFORM_SRCS)
 			lnx/tcuLnxPlatform.hpp
 			lnx/tcuLnxEglPlatform.hpp
 			lnx/tcuLnxEglPlatform.cpp
-			lnx/tcuLnxVulkanPlatform.hpp
-			lnx/tcuLnxVulkanPlatform.cpp
 		)
 
 		include_directories(lnx)
@@ -164,8 +160,6 @@ if (NOT DEFINED TCUTIL_PLATFORM_SRCS)
 		set(TCUTIL_PLATFORM_SRCS
 			osx/tcuOSXPlatform.cpp
 			osx/tcuOSXPlatform.hpp
-			osx/tcuOSXVulkanPlatform.cpp
-			osx/tcuOSXVulkanPlatform.hpp
 			osx/tcuOSXMetalView.mm
 			osx/tcuOSXMetalView.hpp
 			)
@@ -190,9 +184,6 @@ add_library(tcutil-platform STATIC ${TCUTIL_PLATFORM_SRCS})
 if (DEQP_USE_WAYLAND)
 	add_dependencies(tcutil-platform deqp-xdg-shell)
 endif()
-
-# Add vkutil to the deps before tcutil so that it picks up the c++11 dependencies
-target_link_libraries(tcutil-platform vkutil)
 
 target_link_libraries(tcutil-platform tcutil ${TCUTIL_PLATFORM_LIBS})
 

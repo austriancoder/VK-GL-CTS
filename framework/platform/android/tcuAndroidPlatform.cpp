@@ -31,7 +31,6 @@
 #include "eglwLibrary.hpp"
 #include "eglwEnums.hpp"
 #include "tcuFunctionLibrary.hpp"
-#include "vkWsiPlatform.hpp"
 
 // Assume no call translation is needed
 #include <android/native_window.h>
@@ -217,102 +216,6 @@ eglu::NativeDisplay *NativeDisplayFactory::createDisplay(const EGLAttrib *attrib
     return new NativeDisplay();
 }
 
-// Vulkan
-
-class VulkanLibrary : public vk::Library
-{
-public:
-    VulkanLibrary(const char *libraryPath)
-        : m_library(libraryPath != DE_NULL ? libraryPath : "libvulkan.so")
-        , m_driver(m_library)
-    {
-    }
-
-    const vk::PlatformInterface &getPlatformInterface(void) const
-    {
-        return m_driver;
-    }
-
-    const tcu::FunctionLibrary &getFunctionLibrary(void) const
-    {
-        return m_library;
-    }
-
-private:
-    const tcu::DynamicFunctionLibrary m_library;
-    const vk::PlatformDriver m_driver;
-};
-
-DE_STATIC_ASSERT(sizeof(vk::pt::AndroidNativeWindowPtr) == sizeof(ANativeWindow *));
-
-class VulkanWindow : public vk::wsi::AndroidWindowInterface
-{
-public:
-    VulkanWindow(tcu::Android::Window &window)
-        : vk::wsi::AndroidWindowInterface(vk::pt::AndroidNativeWindowPtr(window.getNativeWindow()))
-        , m_window(window)
-    {
-    }
-
-    void setVisible(bool visible)
-    {
-        DE_UNREF(visible);
-    }
-
-    void resize(const UVec2 &newSize)
-    {
-        DE_UNREF(newSize);
-    }
-
-    void setMinimized(bool minimized)
-    {
-        DE_UNREF(minimized);
-        TCU_THROW(NotSupportedError, "Minimized on Android is not implemented");
-    }
-
-    ~VulkanWindow(void)
-    {
-        m_window.release();
-    }
-
-private:
-    tcu::Android::Window &m_window;
-};
-
-class VulkanDisplay : public vk::wsi::Display
-{
-public:
-    VulkanDisplay(WindowRegistry &windowRegistry) : m_windowRegistry(windowRegistry)
-    {
-    }
-
-    vk::wsi::Window *createWindow(const Maybe<UVec2> &initialSize) const
-    {
-        Window *const window = m_windowRegistry.tryAcquireWindow();
-
-        if (window)
-        {
-            try
-            {
-                if (initialSize)
-                    window->setBuffersGeometry((int)initialSize->x(), (int)initialSize->y(), WINDOW_FORMAT_RGBA_8888);
-
-                return new VulkanWindow(*window);
-            }
-            catch (...)
-            {
-                window->release();
-                throw;
-            }
-        }
-        else
-            TCU_THROW(ResourceError, "Native window is not available");
-    }
-
-private:
-    WindowRegistry &m_windowRegistry;
-};
-
 static size_t getTotalSystemMemory(ANativeActivity *activity)
 {
     const size_t MiB = (size_t)(1 << 20);
@@ -338,8 +241,7 @@ static size_t getTotalSystemMemory(ANativeActivity *activity)
 // Platform
 
 Platform::Platform(NativeActivity &activity)
-    : m_activity(activity)
-    , m_totalSystemMemory(getTotalSystemMemory(activity.getNativeActivity()))
+    : m_totalSystemMemory(getTotalSystemMemory(activity.getNativeActivity()))
 {
     m_nativeDisplayFactoryRegistry.registerFactory(new NativeDisplayFactory(m_windowRegistry));
     m_contextFactoryRegistry.registerFactory(new eglu::GLContextFactory(m_nativeDisplayFactoryRegistry));
@@ -353,16 +255,6 @@ bool Platform::processEvents(void)
 {
     m_windowRegistry.garbageCollect();
     return true;
-}
-
-vk::Library *Platform::createLibrary(const char *libraryPath) const
-{
-    return new VulkanLibrary(libraryPath);
-}
-
-void Platform::describePlatform(std::ostream &dst) const
-{
-    tcu::Android::describePlatform(m_activity.getNativeActivity(), dst);
 }
 
 void Platform::getMemoryLimits(tcu::PlatformMemoryLimits &limits) const
@@ -396,22 +288,6 @@ void Platform::getMemoryLimits(tcu::PlatformMemoryLimits &limits) const
     limits.devicePageSize                    = 4096;
     limits.devicePageTableEntrySize          = 8;
     limits.devicePageTableHierarchyLevels    = 3;
-}
-
-vk::wsi::Display *Platform::createWsiDisplay(vk::wsi::Type wsiType) const
-{
-    if (wsiType == vk::wsi::TYPE_ANDROID)
-        return new VulkanDisplay(const_cast<WindowRegistry &>(m_windowRegistry));
-    else
-        TCU_THROW(NotSupportedError, "WSI type not supported on Android");
-}
-
-bool Platform::hasDisplay(vk::wsi::Type wsiType) const
-{
-    if (wsiType == vk::wsi::TYPE_ANDROID)
-        return true;
-
-    return false;
 }
 
 } // namespace Android

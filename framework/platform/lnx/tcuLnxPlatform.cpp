@@ -23,12 +23,10 @@
 
 #include "tcuLnxPlatform.hpp"
 
-#include "tcuLnxVulkanPlatform.hpp"
 #include "tcuLnxEglPlatform.hpp"
 
 #include "deUniquePtr.hpp"
 #include "gluPlatform.hpp"
-#include "vkPlatform.hpp"
 
 #if defined(DEQP_SUPPORT_X11)
 #include <X11/Xlib.h>
@@ -64,10 +62,6 @@ public:
         return !m_eventState.getQuitFlag();
     }
 
-    const vk::Platform &getVulkanPlatform(void) const
-    {
-        return m_vkPlatform;
-    }
     const eglu::Platform &getEGLPlatform(void) const
     {
         return m_eglPlatform;
@@ -79,12 +73,11 @@ public:
 
 private:
     EventState m_eventState;
-    VulkanPlatform m_vkPlatform;
     egl::Platform m_eglPlatform;
     LinuxGLPlatform m_glPlatform;
 };
 
-LinuxPlatform::LinuxPlatform(void) : m_vkPlatform(m_eventState), m_eglPlatform(m_eventState)
+LinuxPlatform::LinuxPlatform(void) : m_eglPlatform(m_eventState)
 {
 #if defined(DEQP_SUPPORT_GLX)
     m_glPlatform.registerFactory(x11::glx::createContextFactory(m_eventState));
