@@ -33,6 +33,7 @@
 #include "egluUtil.hpp"
 #include "egluGLUtil.hpp"
 #include "eglwEnums.hpp"
+#include "eglwEnums.inl"
 #include "eglwLibrary.hpp"
 #include "gluPlatform.hpp"
 #include "gluRenderConfig.hpp"
@@ -44,7 +45,7 @@
 #include "tcuPlatform.hpp"
 #include "tcuRenderTarget.hpp"
 
-#include <EGL/egl.h>
+#include <epoxy/egl.h>
 
 using std::string;
 using std::vector;
@@ -204,7 +205,7 @@ glu::RenderContext *ContextFactory::createContext(const glu::RenderConfig &confi
 
 EglRenderContext::EglRenderContext(const glu::RenderConfig &config, const tcu::CommandLine &cmdLine,
                                    const glu::RenderContext *sharedContext)
-    : m_egl("libEGL.so")
+    : m_egl("libEGL.so.1")
     , m_contextType(config.type)
     , m_eglDisplay(EGL_NO_DISPLAY)
     , m_eglContext(EGL_NO_CONTEXT)
@@ -234,6 +235,7 @@ EglRenderContext::EglRenderContext(const glu::RenderConfig &config, const tcu::C
     EGLU_CHECK_CALL(m_egl, initialize(m_eglDisplay, &eglMajorVersion, &eglMinorVersion));
 
     frame_buffer_attribs.push_back(EGL_RENDERABLE_TYPE);
+#if 0
     switch (contextType.getMajorVersion())
     {
     case 3:
@@ -245,7 +247,9 @@ EglRenderContext::EglRenderContext(const glu::RenderConfig &config, const tcu::C
     default:
         frame_buffer_attribs.push_back(EGL_OPENGL_ES_BIT);
     }
-
+#else
+    frame_buffer_attribs.push_back(EGL_OPENGL_BIT);
+#endif
     frame_buffer_attribs.push_back(EGL_SURFACE_TYPE);
     switch (config.surfaceType)
     {

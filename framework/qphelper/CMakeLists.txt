@@ -42,6 +42,8 @@ if (${CMAKE_SYSTEM_NAME} STREQUAL "FreeBSD")
 	target_link_libraries(qphelper execinfo)
 endif ()
 
+target_link_libraries(qphelper ${hilog-lib})
+
 # Should qpInfo.c attempt to include qpReleaseInfo.inl
 set(USE_RELEASE_INFO_FILE OFF)
 

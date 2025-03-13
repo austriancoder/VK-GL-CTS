@@ -115,8 +115,8 @@ void resetStateES(const RenderContext &renderCtx, const ContextInfo &ctxInfo)
         gl.polygonOffset(0.0f, 0.0f);
         gl.disable(GL_POLYGON_OFFSET_FILL);
 
-        if (contextSupports(type, ApiType::es(3, 0)))
-            gl.disable(GL_RASTERIZER_DISCARD);
+        //if (contextSupports(type, ApiType::es(3, 0)))
+        //    gl.disable(GL_RASTERIZER_DISCARD);
 
         GLU_EXPECT_NO_ERROR(gl.getError(), "Rasterization state reset failed");
     }
@@ -498,7 +498,7 @@ void resetStateES(const RenderContext &renderCtx, const ContextInfo &ctxInfo)
 
         GLU_EXPECT_NO_ERROR(gl.getError(), "Vertex shader state reset failed");
     }
-
+#if 0
     // Transform feedback state.
     if (contextSupports(type, ApiType::es(3, 0)))
     {
@@ -535,7 +535,7 @@ void resetStateES(const RenderContext &renderCtx, const ContextInfo &ctxInfo)
 
         GLU_EXPECT_NO_ERROR(gl.getError(), "Asynchronous query state reset failed");
     }
-
+#endif
     // Hints.
     {
         gl.hint(GL_GENERATE_MIPMAP_HINT, GL_DONT_CARE);
@@ -710,7 +710,7 @@ void resetStateGLCore(const RenderContext &renderCtx, const ContextInfo &ctxInfo
 
     // Rasterization state
     {
-        gl.disable(GL_RASTERIZER_DISCARD);
+        //gl.disable(GL_RASTERIZER_DISCARD);
         gl.pointSize(1.0f);
         gl.pointParameterf(GL_POINT_FADE_THRESHOLD_SIZE, 1.0f);
         gl.pointParameteri(GL_POINT_SPRITE_COORD_ORIGIN, GL_UPPER_LEFT);
@@ -1136,7 +1136,7 @@ void resetStateGLCore(const RenderContext &renderCtx, const ContextInfo &ctxInfo
 
         GLU_EXPECT_NO_ERROR(gl.getError(), "Vertex shader state reset failed");
     }
-
+#if 0
     // Transform feedback state.
     {
         int numTransformFeedbackSeparateAttribs = 0;
@@ -1181,7 +1181,7 @@ void resetStateGLCore(const RenderContext &renderCtx, const ContextInfo &ctxInfo
 
         GLU_EXPECT_NO_ERROR(gl.getError(), "Asynchronous query state reset failed");
     }
-
+#endif
     // Hints.
     {
         gl.hint(GL_LINE_SMOOTH_HINT, GL_DONT_CARE);

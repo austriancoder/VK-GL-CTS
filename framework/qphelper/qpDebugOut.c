@@ -130,7 +130,34 @@ void printFmt(MessageType type, const char *format, va_list args)
 
     __android_log_vprint(getLogPriority(type), "dEQP", format, args);
 }
+#elif defined(DEQP_IS_OHOS_APP)
+#include <hilog/log.h>
 
+static LogLevel getLogPriority(MessageType type)
+{
+    switch (type)
+    {
+    case MESSAGETYPE_INFO:
+        return LOG_INFO;
+    case MESSAGETYPE_ERROR:
+        return LOG_ERROR;
+    default:
+        return LOG_DEBUG;
+    }
+}
+
+void printRaw(MessageType type, const char *message)
+{
+    OH_LOG_Print(LOG_APP, getLogPriority(type), 0xFF, "dEQP", "%{public}s", message);
+}
+
+void printFmt(MessageType type, const char *format, va_list args)
+{
+    char buffer[1024];
+    
+    vsnprintf(buffer, sizeof(buffer), format, args);
+    OH_LOG_Print(LOG_APP, getLogPriority(type), 0xFF, "dEQP", "%{public}s", buffer);
+}
 #else
 
 static FILE *getOutFile(MessageType type)

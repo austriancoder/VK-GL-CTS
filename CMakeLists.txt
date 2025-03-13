@@ -6,18 +6,20 @@ cmake_minimum_required(VERSION 3.20.0)
 
 option(GLES_ALLOW_DIRECT_LINK "Allow direct linking to GLES libraries" OFF)
 
+add_definitions(-DDEQP_IS_OHOS_APP=1)
+
 # Target selection:
 # SELECTED_BUILD_TARGETS is a CMake option that can be set to a list of targets
 # that will be built. If the variable is empty (as is the default), all targets
 # will be built normally.
-set(SELECTED_BUILD_TARGETS "" CACHE STRING "Select some specific targets to build, separated by spaces")
+set(SELECTED_BUILD_TARGETS "glcts" CACHE STRING "Select some specific targets to build, separated by spaces")
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/framework/delibs/cmake")
 find_package(Git)
 find_package(PythonInterp 3)
 
 # dEQP Target.
-set(DEQP_TARGET "default" CACHE STRING "dEQP Target (default, android...)")
+set(DEQP_TARGET "surfaceless" CACHE STRING "dEQP Target (default, android...)")
 
 if (DEFINED DEQP_TARGET_TOOLCHAIN)
 	# \note Toolchain must be included before project() command
